@@ -8,7 +8,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import com.zhang.yang.generator.PlugIniter;
+import com.zhang.yang.config.ConfigurationParser;
+import com.zhang.yang.generator.GeneratorManager;
 
 /**
  * Created by zhangyang56 on 2020/1/10.
@@ -24,7 +25,7 @@ public class MavenPlug extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         logger.info("start generator spring framework code......");
-        new PlugIniter().init(configXmlPath);
+        GeneratorManager.generator(new ConfigurationParser().parse(configXmlPath));
         logger.info("generator done......");
     }
 }

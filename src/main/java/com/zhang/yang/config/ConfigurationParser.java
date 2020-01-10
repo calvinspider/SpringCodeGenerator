@@ -10,28 +10,26 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
  * Created by zhangyang56 on 2020/1/8.
  */
-public class ConfigurationParse {
+public class ConfigurationParser {
 
     public Configuration parse(String xmlPath) {
-        try {
-
-            XPathFactory xpathfactory = XPathFactory.newInstance();
-            XPath xpath = xpathfactory.newXPath();
-            Document doc = buildDoc(xmlPath);
-            DataBaseConfig dataBaseConfig = parseDBConfig(xpath, doc);
-            PackageConfig packageConfig = parsePackageConfig(xpath, doc);
-            Map<String, TableConfig> tableConfigs = parseTableConfig(xpath, doc);
-
-            return new Configuration(dataBaseConfig, packageConfig, tableConfigs);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        XPathFactory xpathfactory = XPathFactory.newInstance();
+        XPath xpath = xpathfactory.newXPath();
+        Document doc = buildDoc(xmlPath);
+        DataBaseConfig dataBaseConfig = parseDBConfig(xpath, doc);
+        PackageConfig packageConfig = parsePackageConfig(xpath, doc);
+        Map<String, TableConfig> tableConfigs = parseTableConfig(xpath, doc);
+        return Configuration.ConfigurationBuilder()
+                .dataBaseConfig(dataBaseConfig)
+                .packageConfig(packageConfig)
+                .tableConfigs(tableConfigs)
+                .build();
     }
 
     private Map<String, TableConfig> parseTableConfig(XPath xpath, Document doc) {
@@ -41,10 +39,21 @@ public class ConfigurationParse {
             NodeList nodes = (NodeList) result;
             for (int i = 0; i < nodes.getLength(); i++) {
                 String tableName = nodes.item(i).getAttributes().getNamedItem("name").getNodeValue();
-                String moduleName = nodes.item(i).getAttributes().getNamedItem("moduleName").getNodeValue();
-                String serviceName = nodes.item(i).getAttributes().getNamedItem("serviceName").getNodeValue();
-                String controllerName = nodes.item(i).getAttributes().getNamedItem("controllerName").getNodeValue();
-                TableConfig tableConfig = new TableConfig(tableName, moduleName, serviceName, controllerName);
+
+                Node node = nodes.item(i).getAttributes().getNamedItem("mapperName");
+                String mapperName = node == null ? null : node.getNodeValue();
+
+                node = nodes.item(i).getAttributes().getNamedItem("moduleName");
+                String moduleName = node == null ? null : node.getNodeValue();
+
+                node = nodes.item(i).getAttributes().getNamedItem("serviceName");
+                String serviceName = node == null ? null : node.getNodeValue();
+
+                node = nodes.item(i).getAttributes().getNamedItem("controllerName");
+                String controllerName = node == null ? null : node.getNodeValue();
+
+                TableConfig tableConfig =
+                        new TableConfig(tableName, moduleName, serviceName, controllerName, mapperName);
                 configs.put(tableName, tableConfig);
             }
             return configs;
@@ -56,12 +65,18 @@ public class ConfigurationParse {
 
     private PackageConfig parsePackageConfig(XPath xpath, Document doc) {
         try {
-            String modulePackage = (String) xpath.compile("//modulePackage/attribute::package").evaluate(doc, XPathConstants.STRING);
-            String myBatisXmlPackage = (String) xpath.compile("//myBatisXmlPackage/attribute::package").evaluate(doc, XPathConstants.STRING);
-            String mapperPackage = (String) xpath.compile("//mapperPackage/attribute::package").evaluate(doc, XPathConstants.STRING);
-            String servicePackage = (String) xpath.compile("//servicePackage/attribute::package").evaluate(doc, XPathConstants.STRING);
-            String controllerPackage = (String) xpath.compile("//controllerPackage/attribute::package").evaluate(doc, XPathConstants.STRING);
-            String javaBase = (String) xpath.compile("//packages/attribute::javaBase").evaluate(doc, XPathConstants.STRING);
+            String modulePackage =
+                    (String) xpath.compile("//modulePackage/attribute::package").evaluate(doc, XPathConstants.STRING);
+            String myBatisXmlPackage = (String) xpath.compile("//myBatisXmlPackage/attribute::package")
+                    .evaluate(doc, XPathConstants.STRING);
+            String mapperPackage =
+                    (String) xpath.compile("//mapperPackage/attribute::package").evaluate(doc, XPathConstants.STRING);
+            String servicePackage =
+                    (String) xpath.compile("//servicePackage/attribute::package").evaluate(doc, XPathConstants.STRING);
+            String controllerPackage = (String) xpath.compile("//controllerPackage/attribute::package")
+                    .evaluate(doc, XPathConstants.STRING);
+            String javaBase =
+                    (String) xpath.compile("//packages/attribute::javaBase").evaluate(doc, XPathConstants.STRING);
             PackageConfig config = new PackageConfig();
             config.setModulePackage(modulePackage);
             config.setXmlPackage(myBatisXmlPackage);

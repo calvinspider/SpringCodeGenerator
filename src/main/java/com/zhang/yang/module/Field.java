@@ -1,4 +1,4 @@
-package com.zhang.yang.config;
+package com.zhang.yang.module;
 
 /**
  * Created by zhangyang56 on 2020/1/8.

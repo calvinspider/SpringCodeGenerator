@@ -1,14 +1,21 @@
-package com.zhang.yang.config;
+package com.zhang.yang.jdbc;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import com.zhang.yang.config.Configuration;
+import com.zhang.yang.config.DataBaseConfig;
+import com.zhang.yang.module.Field;
 
 /**
  * Created by zhangyang56 on 2020/1/8.
@@ -17,6 +24,59 @@ public class JDBCManager {
 
     private static Connection conn = null;
     private static PreparedStatement preparedStatement = null;
+
+    public Map<String, List<Field>> loadTable(Configuration configuration) {
+        if (conn == null) {
+            setConnection(configuration.getDataBaseConfig());
+        }
+        Map<String, List<Field>> tableFields = new HashMap<>();
+        for (String tableName : configuration.getTableNames()) {
+            String sql = "select * from " + tableName + " limit 1";
+            Map<String, String> fileds = query(sql);
+            tableFields.put(tableName, getField(fileds));
+        }
+        return tableFields;
+    }
+
+    public Map<String, List<Field>> getColumn(Configuration configuration) {
+        Map<String, List<Field>> tableFields = new HashMap<>();
+        try {
+            if (conn == null) {
+                setConnection(configuration.getDataBaseConfig());
+            }
+            DatabaseMetaData dbmd = conn.getMetaData();
+            for (String tableName : configuration.getTableNames()) {
+                ResultSet resultSet = dbmd.getTables(null, "%", tableName, new String[] {"TABLE"});
+                Map<String, String> map = new HashMap<>();
+                while (resultSet.next()) {
+                    String name = resultSet.getString("TABLE_NAME");
+                    if (name.equals(tableName)) {
+                        ResultSet rs = dbmd.getColumns(null, "%", name, "%");
+                        while (rs.next()) {
+                            String colName = rs.getString("COLUMN_NAME");
+                            String dbType = rs.getString("TYPE_NAME");
+                            map.put(colName, dbType);
+                        }
+                    }
+                }
+                tableFields.put(tableName, getField(map));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return tableFields;
+    }
+
+    private List<Field> getField(Map<String, String> fileds) {
+        List<Field> fields = new ArrayList<>();
+        for (Map.Entry<String, String> entry : fileds.entrySet()) {
+            Field field = new Field();
+            field.setFieldName(entry.getKey());
+            field.setFieldType(entry.getValue());
+            fields.add(field);
+        }
+        return fields;
+    }
 
     /**
      * 用于查询，返回结果集
@@ -28,7 +88,7 @@ public class JDBCManager {
      * @
      */
     @SuppressWarnings("rawtypes")
-    public static Map<String, String> query(String sql) {
+    private static Map<String, String> query(String sql) {
         ResultSet rs = null;
         Map<String, String> result = new HashMap<>();
         try {
@@ -67,15 +127,13 @@ public class JDBCManager {
 
     }
 
-    public static Connection setConnection(DataBaseConfig config) {
+    private static void setConnection(DataBaseConfig config) {
         try {
             Class.forName(config.getDriver());
             conn = DriverManager.getConnection(config.getUrl(), config.getUserName(), config.getPassword());
-            return conn;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
     }
 
     /**
@@ -83,7 +141,7 @@ public class JDBCManager {
      *
      * @param rs 结果集
      */
-    public static void free(ResultSet rs) {
+    private static void free(ResultSet rs) {
 
         free(null, preparedStatement, rs);
     }
@@ -95,7 +153,7 @@ public class JDBCManager {
      * @param statement
      * @param rs
      */
-    public static void free(Connection conn, Statement statement, ResultSet rs) {
+    private static void free(Connection conn, Statement statement, ResultSet rs) {
         if (rs != null) {
             freeResultSet(rs);
         }
