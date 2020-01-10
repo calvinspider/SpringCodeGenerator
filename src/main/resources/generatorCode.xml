@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<generatorConfiguration>
+    <dataBase driver="com.mysql.jdbc.Driver" url="jdbc:mysql://hots:port/dbName"
+              userName="root" passWord="123456">
+    </dataBase>
+    <packages javaBase="/SpringCodeGenerator/src/main/java">
+        <modulePackage package="com.zhang.yang.test.module">
+        </modulePackage>
+        <myBatisXmlPackage package="/SpringCodeGenerator/src/main/resources/mapper">
+        </myBatisXmlPackage>
+        <mapperPackage package="com.zhang.yang.test.mapper">
+        </mapperPackage>
+        <servicePackage package="com.zhang.yang.test.service">
+        </servicePackage>
+        <controllerPackage package="com.zhang.yang.test.controller">
+        </controllerPackage>
+    </packages>
+    <tables>
+        <table name="table_name" moduleName="TableName" serviceName="TableNameService"
+               controllerName="TableNameController">
+        </table>
+    </tables>
+</generatorConfiguration>
