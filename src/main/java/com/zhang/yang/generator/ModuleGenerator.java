@@ -48,12 +48,12 @@ public class ModuleGenerator implements CodeGenerator {
                                     .build());
                     builder.addMethod(MethodSpec.methodBuilder(NameFormatter.getMethodName(field.getModuleFieldName()))
                             .addModifiers(Modifier.PUBLIC).returns(type)
-                            .addStatement("return $N", field.getModuleFieldName()).build());
+                            .addStatement("return this.$N", field.getModuleFieldName()).build());
 
                     builder.addMethod(MethodSpec.methodBuilder(NameFormatter.setMethodName(field.getModuleFieldName()))
                             .addModifiers(Modifier.PUBLIC).returns(void.class)
                             .addParameter(type, field.getModuleFieldName())
-                            .addStatement("$N = $N", field.getModuleFieldName(), field.getModuleFieldName())
+                            .addStatement("this.$N = $N", field.getModuleFieldName(), field.getModuleFieldName())
                             .build());
                 }
                 TypeSpec tableType = builder.build();

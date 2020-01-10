@@ -81,9 +81,9 @@ public class XmlCodeGenerator implements CodeGenerator {
 
                     eif.addAttribute("test", field.getModuleFieldName() + "!= null");
                     if (i == fields.size() - 1) {
-                        eif.setText(field.getModuleFieldName());
+                        eif.setText("#{" + field.getModuleFieldName() + "}");
                     } else {
-                        eif.setText(field.getModuleFieldName() + ",");
+                        eif.setText("#{" + field.getModuleFieldName() + "},");
                     }
                 }
 
@@ -107,9 +107,9 @@ public class XmlCodeGenerator implements CodeGenerator {
                     Element eif = set.addElement("if");
                     eif.addAttribute("test", field.getModuleFieldName() + "!= null");
                     if (i == fields.size() - 1) {
-                        eif.setText(field.getFieldName() + "=" + field.getModuleFieldName());
+                        eif.setText(field.getFieldName() + "=#{" + field.getModuleFieldName() + "}");
                     } else {
-                        eif.setText(field.getFieldName() + "=" + field.getModuleFieldName() + ",");
+                        eif.setText(field.getFieldName() + "=#{" + field.getModuleFieldName() + "},");
                     }
                 }
                 update.addText("where id = #{id}");
