@@ -1,5 +1,5 @@
 # SpringCodeGenerator
-### 此项目编译后为MAVEN插件，可以根据数据库一键生成MVC项目从mybatis xml到Controller的所有代码（初版）
+### 此项目编译后为MAVEN插件，可以根据数据库一键生成MVC项目从mybatis xml到Controller的所有代码
 #### 生成时需要配置以下几项：
 - dataBase：目标数据库连接信息
 - packages javaBase：maven项目java包的绝对路径
