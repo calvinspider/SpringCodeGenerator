@@ -11,13 +11,12 @@
 - table name moduleName serviceName controllerName：分别对应表名，实体类名，service类名，controller类名
 #### 插件目前未上传到maven仓库中，需要手动安装，直接clone项目后mvn install即可
 可通过以下pom片段引用,configXmlPath为generatorCode.xml的绝对路径
-(```)
-    <plugin>
-        <groupId>com.zhang.yang</groupId>
-        <artifactId>spring-code-generator</artifactId>
-        <version>1.0.0</version>
-        <configuration>
-            <configXmlPath>/resources/generatorCode.xml</configXmlPath>
-        </configuration>
-    </plugin>
-(```)
+
+<plugin>
+    <groupId>com.zhang.yang</groupId>
+    <artifactId>spring-code-generator</artifactId>
+    <version>1.0.0</version>
+    <configuration>
+        <configXmlPath>/resources/generatorCode.xml</configXmlPath>
+    </configuration>
+</plugin>
